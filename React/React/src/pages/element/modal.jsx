@@ -505,7 +505,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                                             {commenti.length > 0 ? (
                                                 commenti.map((commento, index) => (
                                                     <p key={index} style={{ color: 'white' }}>
-                                                        <img src={`http://localhost/instagram/imgprofile.php?user_id=${commento.id}`} alt="User Image" className="imageUserModal" />
+                                                        <img src={`http://localhost:8000/img/${commento.id}`} alt="User Image" className="imageUserModal" />
                                                         <strong>{commento.username}</strong> 
                                                         <span> {commento.text_commento} </span>
                                                     </p>
