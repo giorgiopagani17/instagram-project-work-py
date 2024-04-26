@@ -30,9 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/static", StaticFiles(directory="front-end"), name="static")
-
-
 #-------Connessione al database MySQL-------#
 host = "localhost"
 username = "root"
@@ -799,5 +796,101 @@ async def search_utenti_like(id_post: int, search: str = Query(None)):
             users = cursor.fetchall()
             users.reverse()
             return users
+    finally:
+        cursor.close()
+
+#-------Add Commento-------#
+class Comment(BaseModel):
+    idUser: int
+    idPost: int
+    text: str
+
+@app.post("/newcomment")
+async def create_comment(comment: Comment):
+    try:
+        cursor = connection.cursor()
+        query = """
+            INSERT INTO commenti (id_utente, id_post, text_commento)
+            VALUES (%s, %s, %s)
+        """
+        cursor.execute(query, (comment.idUser, comment.idPost, comment.text))
+        connection.commit()
+        cursor.close()
+        return {"message": "Commento inserito con successo"}
+    except Exception as e:
+        # Log the error or handle it appropriately
+        raise HTTPException(status_code=500, detail="Errore durante l'inserimento del commento nel database")
+
+#-------Get Commenti-------#
+@app.get("/commenti/{post_id}")
+async def get_commenti(post_id: int):
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT u.username, u.id, c.text_commento 
+            FROM commenti c 
+            INNER JOIN users u ON u.id = c.id_utente 
+            WHERE c.id_post = %s
+        """
+        cursor.execute(query, (post_id,))
+        users = cursor.fetchall()
+        users.reverse()
+        return users
+    except Exception as e:
+        # Log the error or handle it appropriately
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+    finally:
+        cursor.close()
+
+#-------Delete Post-------#
+from fastapi import HTTPException
+
+@app.delete("/deletepost/{post_id}")
+async def delete_post(post_id: int):
+    try:
+        cursor = connection.cursor()
+        
+        # Elimina i like correlati al post
+        delete_likes_query = "DELETE FROM like_instagram WHERE id_post = %s"
+        cursor.execute(delete_likes_query, (post_id,))
+        
+        # Elimina i commenti correlati al post
+        delete_comments_query = "DELETE FROM commenti WHERE id_post = %s"
+        cursor.execute(delete_comments_query, (post_id,))
+        
+        # Elimina il post
+        delete_post_query = "DELETE FROM post WHERE id_post = %s"
+        cursor.execute(delete_post_query, (post_id,))
+        
+        connection.commit()
+        
+        return {"message": "Post eliminato con successo"}
+    except mysql.connector.Error as e:
+        raise HTTPException(status_code=500, detail=f"Errore durante l'eliminazione del post: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+
+#-------Suggeriti-------#
+@app.get("/suggeriti/{user_id}")
+async def get_suggeriti(user_id: int):
+    cursor = connection.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT u.id, u.username
+            FROM users u 
+            LEFT JOIN follow f ON u.id = f.id_utente_seguito AND f.id_utente_follower = %s
+            WHERE f.id_utente_seguito IS NULL
+            AND u.id <> %s
+            ORDER BY RAND()
+            LIMIT 5        
+        """
+        cursor.execute(query, (user_id, user_id,))
+        users = cursor.fetchall()
+        users.reverse()
+        return users
+    except Exception as e:
+        # Log the error or handle it appropriately
+        raise HTTPException(status_code=500, detail="Internal Server Error")
     finally:
         cursor.close()

@@ -25,6 +25,7 @@ function ProfilePage() {
   const [follower, setFollower] = useState(0);
   const [image, setImage] = useState(null);
   const [number, setNumber] = useState(null);
+  const [ableToDelete, setAbleToDelete] = useState(false);
   // Ottieni i dati del profilo utilizzando la custom hook useProfileData
   const profileData = useProfileData(id);
   // Ottieni le immagini dell'utente utilizzando la custom hook useUserPost
@@ -127,6 +128,11 @@ function ProfilePage() {
 
   const handleClose2 = () => setShow2(false);
   const handleShow2 = (imageUrl) => {
+    if (parseInt(id) === parseInt(loggedInUserId)) {
+      setAbleToDelete(true);
+    } else {
+      setAbleToDelete(false);
+    }
     setShow2(true);
     setImage(imageUrl);
   };
@@ -233,6 +239,7 @@ function ProfilePage() {
         keyboard={false}
         number={3}
         image = {image}
+        ableToDelete = {ableToDelete}
       />
       <ListModal
         show={show3}

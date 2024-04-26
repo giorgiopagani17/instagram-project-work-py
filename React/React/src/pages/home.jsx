@@ -11,6 +11,8 @@ import { useNavigate } from "react-router-dom";
 import { IoSearchCircleOutline } from "react-icons/io5";
 import { format, parseISO } from 'date-fns';
 import ListModal from './element/listmodal.jsx';
+import Card from './element/cardHome';
+import Modal from './element/modal.jsx';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -22,6 +24,8 @@ function HomePage() {
   const [showList, setShowList] = useState(false);
   const [numberList, setNumberList] = useState(null);
   const [id_post_list, setIdPostList] = useState(null);
+  const [show, setShow] = useState(false);
+  const [image, setImage] = useState(null);
   
   useEffect(() => {
     const getUserPosts = async () => {
@@ -96,6 +100,12 @@ function HomePage() {
       setIdPostList(id_post_list)
   };
 
+  const handleClose = () => setShow(false);
+  const handleShow = (imageUrl) => {
+    setShow(true);
+    setImage(imageUrl);
+  };
+
   return (
     <div className="bg-dark" style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
@@ -153,7 +163,7 @@ function HomePage() {
                       }}
                     />
                   )}
-                  <IoChatbubbleOutline size={25} style={{ marginLeft: '10px' }} />
+                  <IoChatbubbleOutline size={25} style={{ marginLeft: '10px', cursor:'pointer' }} onClick={() => handleShow(post.img_post)}/>
                   <FiSend size={25} style={{ marginLeft: '10px' }} />
                 </span>
                 <span style={{ marginLeft: 'auto' }}>
@@ -162,7 +172,7 @@ function HomePage() {
               </div>
               <strong style={{ fontSize: '15px', cursor:'pointer'}} onClick={() => handleShowList(3, post.id)}>Piace a {postLikes[post.id] ? postLikes[post.id].num_likes : 0} persone</strong>
               <p style={{ color: 'white', marginBottom: '0px' }}><strong>{post.username} </strong><span style={{ fontSize: '14px' }}>{post.descrizione}</span></p>
-              <p>Commenti...</p>
+              <p style={{ color:'grey', cursor:'pointer'}} onClick={() => handleShow(post.img_post)}>Mostra Commenti... </p>
               <hr />
             </div>
           ))
@@ -176,6 +186,15 @@ function HomePage() {
         number={numberList}
         id_post = {id_post_list}
       />
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+        number={3}
+        image = {image}
+      />
+      <Card/>
     </div>
   );
 }

@@ -19,7 +19,7 @@ import { logout } from '../../features/user.js';
 import ListModal from './listmodal.jsx';
 
 
-const ModalComponent = ({ number, image, ...props }) => {
+const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
     const loggedInUserId = useSelector((state) => state.user.value.id);
     const email = useSelector((state) => state.user.value.email)
     const loggedInUserUsername = useSelector((state) => state.user.value.username);
@@ -47,7 +47,10 @@ const ModalComponent = ({ number, image, ...props }) => {
     const [showList, setShowList] = useState(false);
     const [numberList, setNumberList] = useState(null);
     const [id_post_list, setIdPostList] = useState(null);
-    
+    const [comment, setComment] = useState('');
+    const [commenti, setCommenti] = useState([]);
+    const [index, setIndex] = useState(0);
+
     //Get Biografia e Password Utente
     useEffect(() => {
         const getInfoToUpdate = async () => {
@@ -105,6 +108,26 @@ const ModalComponent = ({ number, image, ...props }) => {
         }
     }, [image]);
     
+    useEffect(() => {
+        if (postInfo) {
+            const getCommenti = async () => {
+                try {
+                    const response = await axios.get(`http://localhost:8000/commenti/${postInfo.post_id }`, {
+                    });
+                    // Assuming commenti is your state variable to store comments
+                    setCommenti(response.data);
+                    console.log(response.data);
+                } catch (error) {
+                    console.error('Error fetching comments:', error);
+                }
+            }
+    
+            // Call the function initially
+            getCommenti();
+        }
+        // Add postInfo to the dependency array to run the effect whenever postInfo changes
+    }, [postInfo]);
+
     useEffect(() => {
         const checkLikedStatus = async () => {
             if (postInfo && loggedInUserId) {
@@ -189,7 +212,7 @@ const ModalComponent = ({ number, image, ...props }) => {
             };
     
             // Verifica se i nuovi valori sono diversi dai valori correnti
-            if (usernameNew !== loggedInUserUsername || password !== passwordOld || biografia) {
+            if (usernameNew !== loggedInUserUsername || password !== passwordOld || biografia !== descriptionNew) {
                 const response = await axios.put(`http://localhost:8000/changeinfo/${loggedInUserId}`, data, {
                     headers: {
                         'Content-Type': 'application/json'
@@ -216,7 +239,6 @@ const ModalComponent = ({ number, image, ...props }) => {
             throw error;
         }
     };
-         
 
     // Funzione per reimpostare l'immagine del profilo
     const defaultImgProfile = async () => {
@@ -236,6 +258,9 @@ const ModalComponent = ({ number, image, ...props }) => {
     };
 
     function handleClose() {
+        if(index > 0){
+            window.location.reload(); // Ricarica la pagina se sono stati aggiunti commenti
+        }
         URL.revokeObjectURL(file); // Elimina l'URL dell'immagine
         setFile(null); // Resetta il file quando la modale viene chiusa
         setDescription(''); // Resetta la descrizione quando la modale viene chiusa
@@ -277,12 +302,66 @@ const ModalComponent = ({ number, image, ...props }) => {
         }
       };
       
-        const handleCloseList = () => setShowList(false);
-        const handleShowList = (numberList, id_post_list) => {
-            setShowList(true);
-            setNumberList(numberList);
-            setIdPostList(id_post_list)
-        };
+    const handleDelete = async (postId) => {
+        try {
+            const response = await axios.delete(`http://localhost:8000/deletepost/${postId}`);
+            if (response.status === 200) {
+                handleClose(); // Chiude la modal dopo il completamento della chiamata API
+                window.location.reload(); // Ricarica la pagina se necessario
+            } else {
+                console.error(`Errore durante la rimozione del post ${postId}:`, response.statusText);
+            }
+            setIsLikeHovered(false); // Resetta lo stato dell'hover
+        } catch (error) {
+            console.error(`Errore durante la rimozione del post ${postId}:`, error);
+        }
+    };
+
+    const handleCloseList = () => setShowList(false);
+    const handleShowList = (numberList, id_post_list) => {
+        setShowList(true);
+        setNumberList(numberList);
+        setIdPostList(id_post_list)
+    };
+
+    const handleTextComment = (e) => {
+        const text = e.target.value;
+        setComment(text);
+    }
+
+    async function publishComment(user_id, post_id){
+        if(comment !== ''){
+            try {
+                const data = {
+                    idUser: user_id,
+                    idPost: post_id,
+                    text: comment
+                };
+        
+                const response = await axios.post(`http://localhost:8000/newcomment`, data);
+        
+                if (response.status === 200) {
+                    const nuovoCommento = {
+                        id: user_id, // Assumi che la risposta contenga l'ID del nuovo commento
+                        username: loggedInUserUsername,
+                        text_commento: comment, // Assumi che il commento sia lo stesso inviato
+                    };
+                    setCommenti(prevCommenti => [nuovoCommento, ...prevCommenti]); // Aggiungi il nuovo commento al primo posto nell'array esistente
+                    setComment('');
+                    setIndex(index + 1);
+                } else {
+                    console.error(`Errore durante la pubblicazione del commento ${comment}:`, response.statusText);
+                }
+            } catch (error) {
+                console.error(`Errore durante la pubblicazione del commento ${comment}:`, error);
+            }
+        }
+    }
+    
+    const handleUserSearchedProfile = (userId) => {
+        navigate(`/profile/${userId}`);
+        handleClose();
+    };
 
     return (
         <BootstrapModal
@@ -347,8 +426,28 @@ const ModalComponent = ({ number, image, ...props }) => {
                                 </div>
                                 <div className='description'>
                                     <img src={image_path} alt="User Image" className="imageUserModal" />
-                                    {username}
-                                    <textarea id="Postdescription" onChange={handleChangeDescription} placeholder="Scrivi una didascalia..." name="desc" rows="5" cols="33" style={{ width: '80%', height: '50%', marginTop: '4%', backgroundColor: '#343a40', color: '#fff', border:'none', resize: 'none'}}></textarea>
+                                    <strong>{username}</strong>
+                                    <textarea
+                                        id="Postdescription"
+                                        onChange={handleChangeDescription}
+                                        placeholder="Scrivi una didascalia..."
+                                        name="desc"
+                                        rows="5"
+                                        cols="33"
+                                        style={{
+                                            width: '80%',
+                                            height: '50%',
+                                            marginTop: '4%',
+                                            backgroundColor: '#343a40',
+                                            color: '#fff',
+                                            border: 'none', // Rimuovi completamente il bordo
+                                            borderRadius: '4px', // Aggiungi bordi arrotondati per uno stile più morbido
+                                            resize: 'none',
+                                            outline: 'none' // Rimuovi l'outline di default
+                                        }}
+                                    ></textarea>
+                                    <p style={{color:'white', fontSize:'14px'}}><strong>Accessibilità</strong></p>
+                                    <p style={{color:'white', fontSize:'14px'}}><strong>Impostazioni Avanzate</strong></p>
                                 </div>
                             </div>
                         )}
@@ -383,7 +482,7 @@ const ModalComponent = ({ number, image, ...props }) => {
                         )}
                     </div>
                 ) : number === 3 ? (
-                    <div className='flex'>
+                    <div className='flex' style={{ height: '350px'}}>
                         {image && postInfo && (
                             <>
                             <div>
@@ -391,17 +490,33 @@ const ModalComponent = ({ number, image, ...props }) => {
                             </div>
                             <div style={{marginLeft:'3%', width:'50%'}}>
                                 <img src={postInfo.imgProfile} alt="User Image" className="imageUserModal" />
-                                <strong>{postInfo.username}</strong>
+                                <strong style={{ cursor: 'pointer' }} onClick={() => handleUserSearchedProfile(postInfo.user_id)}>{postInfo.username}</strong>
                                 <hr/>
-                                <div style={{height:'30%'}}>
-                                    {postInfo.descrizionepost && (
-                                        <p style={{ color: 'white' }}>
-                                            <img src={postInfo.imgProfile} alt="User Image" className="imageUserModal" />
-                                            <strong>{postInfo.username}</strong> 
-                                            <span> {postInfo.descrizionepost} </span>
-                                        </p>
+                                <div style={{ height: '30%', overflowY: 'auto' }}>
+                                    {postInfo.descrizionepost || commenti.length > 0 ? (
+                                        <>
+                                            {postInfo.descrizionepost && (
+                                                <p style={{ color: 'white' }}>
+                                                    <img src={postInfo.imgProfile} alt="User Image" className="imageUserModal" />
+                                                    <strong>{postInfo.username}</strong> 
+                                                    <span> {postInfo.descrizionepost} </span>
+                                                </p>
+                                            )}
+                                            {commenti.length > 0 ? (
+                                                commenti.map((commento, index) => (
+                                                    <p key={index} style={{ color: 'white' }}>
+                                                        <img src={`http://localhost/instagram/imgprofile.php?user_id=${commento.id}`} alt="User Image" className="imageUserModal" />
+                                                        <strong>{commento.username}</strong> 
+                                                        <span> {commento.text_commento} </span>
+                                                    </p>
+                                                ))
+                                            ) : (
+                                                <p style={{ color: 'grey' }}>Ancora nessun commento...</p>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <p style={{ color: 'grey' }}>Ancora nessun commento...</p>
                                     )}
-                                    <p style={{color:'grey'}}>Commenti...</p>
                                 </div>
                                 <hr/>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '5px' }}>
@@ -433,10 +548,10 @@ const ModalComponent = ({ number, image, ...props }) => {
                                 <p style={{color:'white', marginTop:'2%', cursor:'pointer'}} onClick={() => handleShowList(3, postInfo.post_id)}>Piace a {postLikes[postInfo.post_id] ? postLikes[postInfo.post_id].num_likes : 0} persone</p>
                                 <p style={{color:'grey', fontSize:'14px'}}>{dataFormattata}</p>
                                 <hr/>
-                                <div>
+                                <div style={{display:"flex"}}>
                                     <MdInsertEmoticon size={25} />
-                                    <span style={{ color: 'grey', marginLeft:'5%', display: 'inline-block', width: 'calc(100% - 100px)' }}>Aggiungi un commento...</span>
-                                    <span style={{ float: 'right', marginLeft:'-5%', cursor:'pointer'}} className="text-primary">Pubblica</span>
+                                    <Form.Control style={{width:"70%", marginTop:'-2%', marginLeft:'3%', verticalAlign:"middle"}} type="text" onChange={handleTextComment} value={comment} placeholder="Aggiungi un commento..." />
+                                    <a style={{ float: 'right', marginLeft:'3%', cursor:'pointer'}} onClick={() => publishComment(loggedInUserId, postInfo.post_id)} className="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Pubblica</a>
                                 </div>
                             </div>
                             </>
@@ -458,9 +573,23 @@ const ModalComponent = ({ number, image, ...props }) => {
             {(number === 2 || number === 3) && (
                 <BootstrapModal.Footer>
                     {!fileSelected && (
-                        <a onClick={handleClose} className="link-light link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" style={{ textAlign: 'center', width: '100%', display: 'block', cursor:'pointer' }}>
-                            <strong>Annulla</strong>
-                        </a>
+                        <>
+                            {!ableToDelete && (
+                                <a onClick={handleClose} className="link-light link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" style={{ textAlign: 'center', width: '100%', display: 'block', cursor:'pointer' }}>
+                                    <strong>Annulla</strong>
+                                </a>
+                            )}
+                            {ableToDelete && (
+                                <>
+                                    <a onClick={handleClose} className="link-light link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" style={{ textAlign: 'center', width: '48%', display: 'block', cursor:'pointer' }}>
+                                        <strong>Annulla</strong>
+                                    </a>
+                                    <a onClick={() => handleDelete(postInfo.post_id)} className="link-danger link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover" style={{ textAlign: 'center', width: '48%', display: 'block', cursor:'pointer' }}>
+                                        <strong>Elimina post</strong>
+                                    </a>
+                                </>
+                            )}
+                        </>
                     )}
                     {file && (
                         <>
