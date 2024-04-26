@@ -1,0 +1,24 @@
+.left{
+    text-align: left;
+    width:33%
+}
+.center{
+    text-align: center;
+    width:34%;
+    font-size: 20px;
+}
+.right{
+    text-align: right;
+    width:33%
+}
+
+.searched{
+    margin-top:5;
+    padding: 10px;
+    list-style: none;
+    color: white;
+  }
+
+  .modal-dark .modal-body {
+    border-bottom: none!important;
+}

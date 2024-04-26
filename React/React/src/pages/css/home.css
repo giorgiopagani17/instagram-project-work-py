@@ -1,0 +1,33 @@
+.perTe{
+    margin-left: 30%;
+    margin-top: 3%;
+    width: 40%;
+    color: white;
+}
+.liked {
+    color: red;
+    transition: color 0.5s ease; /* Durata e tipo di animazione */
+  }
+
+  .divNoPostHome {
+    margin-top: 23%;
+  }
+  .divImgNoPostHome {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: center; 
+  }
+  .divTextNoPostHome {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    margin-top: 1%;
+  }
+    
+  .noPostHome {
+    color: white;
+    font-size: 35px;
+    margin-top: 20px;
+  }
