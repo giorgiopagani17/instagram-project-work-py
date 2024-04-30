@@ -35,7 +35,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
     const user = useSelector((state) => state.user.value);
     const username = user ? user.username : '';
     const id = user ? user.id : '';
-    const image_path = 'http://localhost:8000/img/' + id;
+    const image_path = `http://localhost/instagram/imgprofile.php?user_id=${id}`;
     const navigate = useNavigate();
     const redirect = "/profile/" + id;
     const [postLikes, setPostLikes] = useState({});
@@ -489,7 +489,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                                 <img src={image} alt="Post" />
                             </div>
                             <div style={{marginLeft:'3%', width:'50%'}}>
-                                <img src={postInfo.imgProfile} alt="User Image" className="imageUserModal" />
+                                <img src={`http://localhost/instagram/imgprofile.php?user_id=${postInfo.user_id}`} alt="User Image" className="imageUserModal" />
                                 <strong style={{ cursor: 'pointer' }} onClick={() => handleUserSearchedProfile(postInfo.user_id)}>{postInfo.username}</strong>
                                 <hr/>
                                 <div style={{ height: '30%', overflowY: 'auto' }}>
@@ -505,7 +505,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                                             {commenti.length > 0 ? (
                                                 commenti.map((commento, index) => (
                                                     <p key={index} style={{ color: 'white' }}>
-                                                        <img src={`http://localhost:8000/img/${commento.id}`} alt="User Image" className="imageUserModal" />
+                                                        <img src={`http://localhost/instagram/imgprofile.php?user_id=${commento.id}`} alt="User Image" className="imageUserModal" />
                                                         <strong>{commento.username}</strong> 
                                                         <span> {commento.text_commento} </span>
                                                     </p>

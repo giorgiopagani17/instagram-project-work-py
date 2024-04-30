@@ -858,6 +858,24 @@ async def delete_post(post_id: int):
         delete_comments_query = "DELETE FROM commenti WHERE id_post = %s"
         cursor.execute(delete_comments_query, (post_id,))
         
+        # Trova post
+        find_post_query = "SELECT img_post FROM post WHERE id_post = %s"
+        cursor.execute(find_post_query, (post_id,))
+        result = cursor.fetchone()
+
+        if result:
+        # Estrai il percorso dell'immagine dal risultato della query
+            img_path = result[0]
+            
+            # Elimina il file dal PC se esiste
+            if os.path.exists(img_path):
+                os.remove(img_path)
+                print("File eliminato:", img_path)
+            else:
+                print("Il file non esiste:", img_path)
+        else:
+            print("Post non trovato per l'ID:", post_id)
+            
         # Elimina il post
         delete_post_query = "DELETE FROM post WHERE id_post = %s"
         cursor.execute(delete_post_query, (post_id,))

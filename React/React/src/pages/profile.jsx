@@ -19,7 +19,7 @@ function ProfilePage() {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
-  const image_path = `http://localhost:8000/img/${id}`;
+  const image_path = `http://localhost/instagram/imgprofile.php?user_id=${id}`;
   const loggedInUserId = useSelector((state) => state.user.value.id); // ID dell'utente nella sessione
   const [follow, setFollow] = useState(null);
   const [follower, setFollower] = useState(0);

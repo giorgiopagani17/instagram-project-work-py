@@ -123,7 +123,7 @@ function ListModal(props) {
                     <div style={{ marginTop: "10px", marginBottom: "-10px" }}>
                         {users.map((user) => (
                             <p key={user.id} className="searched" onClick={() => handleUserSearchedProfile(user.id)}>
-                                <img src={`http://localhost:8000/img/${user.id}`} style={{ marginRight: '10px', width: '35px', height: '35px', borderRadius: '35px' }} alt={`User ${user.id}`} />
+                                <img src={`http://localhost/instagram/imgprofile.php?user_id=${user.id}`} style={{ marginRight: '10px', width: '35px', height: '35px', borderRadius: '35px' }} alt={`User ${user.id}`} />
                                 <span style={{ verticalAlign: '0px', fontSize: '15px', cursor: 'pointer' }}>{user.username}</span>
                             </p>
                         ))}

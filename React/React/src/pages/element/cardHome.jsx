@@ -31,13 +31,13 @@ const Card = () => {
     return (
         <div className='card'>
             <div style={{marginTop:'35%'}}>
-                <img src={`http://localhost:8000/img/${loggedInUserId}`} style={{height:'35px', width:'35px', borderRadius:'35px'}}/>
+                <img src={`http://localhost/instagram/imgprofile.php?user_id=${loggedInUserId}`} style={{height:'35px', width:'35px', borderRadius:'35px'}}/>
                 <strong style={{color:'white', fontSize:'16px', marginLeft:'7px', cursor:'pointer'}} onClick={() => handleUserSearchedProfile(loggedInUserId)}>{loggedInUserUsername}</strong>
                 <p style={{fontSize:'14px', marginTop:'14px', color:'grey'}}><strong>Suggeriti per te</strong></p>
                 <div>
                     {suggeriti.map((suggerito) => (
                         <p key={suggerito.id}>
-                            <img src={`http://localhost:8000/img/${suggerito.id}`} style={{height:'35px', width:'35px', borderRadius:'35px'}}/>
+                            <img src={`http://localhost/instagram/imgprofile.php?user_id=${suggerito.id}`} style={{height:'35px', width:'35px', borderRadius:'35px'}}/>
                             <strong style={{color:'white', fontSize:'16px', marginLeft:'7px', cursor:'pointer'}} onClick={() => handleUserSearchedProfile(suggerito.id)}>{suggerito.username}</strong>
                         </p>
                     ))}
