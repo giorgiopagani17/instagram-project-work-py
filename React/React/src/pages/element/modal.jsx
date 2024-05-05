@@ -171,6 +171,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                     await uploadPost(id, blob, description);
                     // Chiudi la modale dopo il caricamento dell'immagine
                     handleClose();
+                    window.location.reload();
                     handleUserSearchedProfile(loggedInUserId);
                 } catch (error) {
                     console.error('Error uploading image:', error);

@@ -175,7 +175,7 @@ async def get_user_posts(user_id: int) -> List[Post]:
                 datepost=row["date"].strftime("%Y-%m-%d"),
                 num_like=row["num_like"],
                 username=row["username"],
-                user_img=f"http://localhost:8000/img/{row['id_utente']}",
+                user_img=f"http://localhost/instagram/imgprofile.php?user_id={row['id_utente']}",
                 user_id=row['id_utente']
             )
             result_posts.append(post)
@@ -606,7 +606,7 @@ async def get_post_info(post_img: str):
             description = post_info['descrizione']
             date = post_info['date']
             username = post_info['username']
-            imgProfile = f'http://localhost:8000/img/{user_id}'
+            imgProfile = f'http://localhost/instagram/imgprofile.php?user_id={user_id}'
 
             # Ora puoi eseguire un'altra query per ottenere il numero di like del post
             like_query = """
