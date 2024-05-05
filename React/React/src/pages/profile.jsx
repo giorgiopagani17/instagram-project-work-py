@@ -4,7 +4,7 @@ import Sidebar from './element/sidebar';
 import Button from 'react-bootstrap/Button';
 import { IoIosSettings } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
-import { useProfileData, useUserPost } from '../features/api';
+import { useUserPost } from '../features/api';
 import './css/profile.css';
 import { IoCameraOutline } from "react-icons/io5";
 import { MdOutlinePersonAdd } from "react-icons/md";
@@ -26,10 +26,48 @@ function ProfilePage() {
   const [image, setImage] = useState(null);
   const [number, setNumber] = useState(null);
   const [ableToDelete, setAbleToDelete] = useState(false);
-  // Ottieni i dati del profilo utilizzando la custom hook useProfileData
-  const profileData = useProfileData(id);
-  // Ottieni le immagini dell'utente utilizzando la custom hook useUserPost
+  const [profileData, setProfileData] = useState(null);
+
+  //Get post user
   const userImages = useUserPost(id);
+  
+  useEffect(() => {
+    const api_url = 'http://localhost:8000/profileinfo/' + id;
+    const fetchProfileData = async () => {
+      try {
+        const response = await fetch(api_url);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+        // Gestire l'errore o visualizzare un messaggio all'utente
+      }
+    };
+
+    fetchProfileData();
+  }, [show, show2, show3, id]); 
+  
+  useEffect(() => {
+    const api_url = 'http://localhost:8000/profileinfo/' + id;
+    const fetchProfileData = async () => {
+      try {
+        const response = await fetch(api_url);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProfileData(data);
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+        // Gestire l'errore o visualizzare un messaggio all'utente
+      }
+    };
+
+    fetchProfileData();
+  }, [show, show2, show3, id]); 
 
   //Check Number Follower
   useEffect(() => {

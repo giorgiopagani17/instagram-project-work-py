@@ -53,7 +53,7 @@ function HomePage() {
       }
     };
     getUserPosts();
-  }, [loggedInUserId]);
+  }, [loggedInUserId, show]);
 
   const handleLike = async (postId) => {
     try {

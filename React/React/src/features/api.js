@@ -1,32 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-//-------PROFILE INFO-------//
-export function useProfileData(id) {
-  const [profileData, setProfileData] = useState(null);
-  const api_url = 'http://localhost:8000/profileinfo/' + id;
-
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        const response = await fetch(api_url);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setProfileData(data);
-      } catch (error) {
-        console.error('Error fetching profile data:', error);
-        // Gestire l'errore o visualizzare un messaggio all'utente
-      }
-    };
-
-    fetchProfileData();
-  }, [id]); // useEffect will re-run when id change
-
-  return profileData;
-}
-
 //-------UPLOAD POST-------//
 export async function uploadPost(userId, blob, description) {
     const upload_path = 'http://localhost:8000/upload/' + userId;

@@ -11,6 +11,7 @@ import mysql.connector
 import random
 import os
 from fastapi.responses import JSONResponse
+import hashlib
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 from urllib.parse import unquote
@@ -66,6 +67,9 @@ async def register(request: Request):
     description = ""
     
     try:
+        # Cripta la password
+        hashed_password = hashlib.sha256(passUtente.encode()).hexdigest()
+        
         cursor = connection.cursor()
         
         # Verifica se lo username esiste già
@@ -86,7 +90,7 @@ async def register(request: Request):
         
         # Se lo username e l'email non esistono già, procedi con l'inserimento
         query_insert = "INSERT INTO users (username, email, password, img, descrizione) VALUES (%s, %s, %s, %s, %s)"
-        dati = (usernameUtente, nomeUtente, passUtente, imgUtente, description)
+        dati = (usernameUtente, nomeUtente, hashed_password, imgUtente, description)
         cursor.execute(query_insert, dati)
         connection.commit()
         return {"Message": "OK"}
@@ -109,9 +113,12 @@ async def login(request: Request):
         email = data.get("email")
         password = data.get("password")
         
+        # Cripta la password inserita per confrontarla con quella salvata nel database
+        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        
         cursor = connection.cursor()
         query = "SELECT id, username, img, descrizione FROM users WHERE email = %s AND password = %s"
-        cursor.execute(query, (email, password))
+        cursor.execute(query, (email, hashed_password))  # Confronta con l'hash della password
         
         user_row = cursor.fetchone()
         if user_row:
@@ -665,36 +672,59 @@ async def change_user_info(user_id: int, request: Request):
     description = data["description"]
     
     try:
-        cursor = connection.cursor()
+        with connection.cursor() as cursor:
+            # Verifica se lo username esiste già
+            cursor.execute("SELECT COUNT(*) AS count FROM users WHERE username = %s AND id != %s", (username, user_id))
+            existing_username_count = cursor.fetchone()[0]
 
-        # Verifica se lo username esiste già
-        cursor.execute("SELECT COUNT(*) FROM users WHERE username = %s AND id != %s", (username, user_id))
-        existing_username_count = cursor.fetchone()[0]
+            if existing_username_count > 0:
+                return {"error": f"Lo username {username} esiste già nel database"}
 
-        if existing_username_count > 0:
-            raise HTTPException(status_code=400, detail="Lo username è già in uso")
+            # Ottieni le informazioni attuali dell'utente
+            cursor.execute("SELECT username, password, descrizione FROM users WHERE id = %s", (user_id,))
+            current_user_info = cursor.fetchone()
 
-        # Esegui l'aggiornamento se lo username non esiste già
-        query = "UPDATE users SET username = %s, password = %s, descrizione = %s WHERE id = %s"
-        cursor.execute(query, (username, password, description, user_id))
+            # Inizializza le variabili per tracciare quali campi sono stati modificati
+            username_changed = False
+            password_changed = False
+            description_changed = False
+
+            # Cripta la nuova password se è stata fornita e se è diversa dalla password attuale
+            if password and hashlib.sha256(password.encode()).hexdigest() != current_user_info[1]:
+                hashed_password = hashlib.sha256(password.encode()).hexdigest()
+                # Aggiorna la password nel database
+                cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed_password, user_id))
+                password_changed = True
+
+            # Aggiorna lo username e/o la descrizione se sono stati forniti nuovi valori
+            if username != current_user_info[0]:
+                cursor.execute("UPDATE users SET username = %s WHERE id = %s", (username, user_id))
+                username_changed = True
+
+            if description != current_user_info[2]:
+                cursor.execute("UPDATE users SET descrizione = %s WHERE id = %s", (description, user_id))
+                description_changed = True
+
         connection.commit()
-        affected_rows = cursor.rowcount
-        cursor.close()
-        
-        if affected_rows > 0:
-            return {"message": "Informazioni utente aggiornate con successo"}
-        else:
-            raise HTTPException(status_code=404, detail="Modifiche non avvenute")
+
+        # Ritorna il messaggio di successo insieme ai booleani che indicano quali campi sono stati modificati
+        return {
+            "message": "Informazioni aggiornate con successo",
+            "username_changed": username_changed,
+            "password_changed": password_changed,
+            "description_changed": description_changed
+        }
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        raise e
+
 #-------Get Biografia e Password-------#
 @app.get("/infotoupdate/{user_id}")
 async def get_user_images(user_id: int):
     cursor = connection.cursor(dictionary=True)
     try:
         # Esegui una query per ottenere solo gli URL delle immagini dell'utente specificato
-        cursor.execute("SELECT descrizione, password FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT descrizione FROM users WHERE id = %s", (user_id,))
         result = cursor.fetchall()
         
         return result

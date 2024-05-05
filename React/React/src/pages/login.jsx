@@ -24,10 +24,10 @@ const Login = () => {
     const dispatch = useDispatch()
 
     const handleLogin = async () => {
-        if (!recaptchaValue) {
-            setErrorMessage('Il captcha è obbligatorio');
-            return;
-        }
+        // if (!recaptchaValue) {
+        //     setErrorMessage('Il captcha è obbligatorio');
+        //     return;
+        // }
 
         try {
             const response = await fetch('http://localhost:8000/login', {

@@ -27,7 +27,6 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
     const [descriptionNew, setDescriptionNew] = useState("");
     const [biografia, setBiografia] = useState("");
     const [password, setPassword] = useState("");
-    const [passwordOld, setPasswordOld] = useState("");
     const [file, setFile] = useState(null);
     const [fileSelected, setFileSelected] = useState(false);
     const [description, setDescription] = useState('');
@@ -49,7 +48,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
     const [id_post_list, setIdPostList] = useState(null);
     const [comment, setComment] = useState('');
     const [commenti, setCommenti] = useState([]);
-    const [index, setIndex] = useState(0);
+    const [contatore, setContatore] = useState(0);
 
     //Get Biografia e Password Utente
     useEffect(() => {
@@ -64,8 +63,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                 // Impostiamo follow direttamente al valore restituito dal backend
                 setDescriptionNew(data[0].descrizione);
                 setBiografia(data[0].descrizione);
-                setPassword(data[0].password);
-                setPasswordOld(data[0].password);
+                setPassword("");
             } catch (error) {
                 console.error('Error fetching follow:', error);
                 // Gestire l'errore o visualizzare un messaggio all'utente
@@ -74,7 +72,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
     
         getInfoToUpdate(); // Chiamiamo la funzione per recuperare la biografia
     
-    }, [loggedInUserId]);
+    }, [loggedInUserId, contatore]);
     
     useEffect(() => {
         if (image) {
@@ -212,19 +210,24 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
             };
     
             // Verifica se i nuovi valori sono diversi dai valori correnti
-            if (usernameNew !== loggedInUserUsername || password !== passwordOld || biografia !== descriptionNew) {
+            if (usernameNew !== loggedInUserUsername || password !== "" || biografia !== descriptionNew) {
                 const response = await axios.put(`http://localhost:8000/changeinfo/${loggedInUserId}`, data, {
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 });
-                if (usernameNew !== loggedInUserUsername || password !== passwordOld) {
+    
+                // Assicurati che la risposta contenga i dati che stai cercando di accedere
+                const changedPassword = response.data && response.data.password_changed;
+                const changedUsername = response.data && response.data.username_changed;
+                const changedDescription = response.data && response.data.description_changed;
+
+                if (changedUsername || changedPassword) {
                     handleClose();
                     handleLogout();
-                }
-                else {
+                } else {
                     handleClose();
-                    window.location.reload();
+                    setContatore(prev + 1);
                 }
             } else {
                 // Se i valori non sono cambiati, chiudi semplicemente la modale
@@ -238,7 +241,7 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
             }
             throw error;
         }
-    };
+    };    
 
     // Funzione per reimpostare l'immagine del profilo
     const defaultImgProfile = async () => {
@@ -258,9 +261,6 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
     };
 
     function handleClose() {
-        if(index > 0){
-            window.location.reload(); // Ricarica la pagina se sono stati aggiunti commenti
-        }
         URL.revokeObjectURL(file); // Elimina l'URL dell'immagine
         setFile(null); // Resetta il file quando la modale viene chiusa
         setDescription(''); // Resetta la descrizione quando la modale viene chiusa
@@ -348,7 +348,6 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                     };
                     setCommenti(prevCommenti => [nuovoCommento, ...prevCommenti]); // Aggiungi il nuovo commento al primo posto nell'array esistente
                     setComment('');
-                    setIndex(index + 1);
                 } else {
                     console.error(`Errore durante la pubblicazione del commento ${comment}:`, response.statusText);
                 }
