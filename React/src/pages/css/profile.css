@@ -1,0 +1,94 @@
+.imageProfile{
+    vertical-align: sub;
+    margin-right: 0.5rem;
+    width: 150px;
+    height: 150px;
+    border-radius: 150px;
+  }
+  .profileDiv{
+    margin-left: 30%;
+    margin-top: 3%;
+    width: 55%;
+    color: white;
+  }
+
+  .profileInfo{
+    display: flex;
+    margin-left: 10%;
+  }
+
+  .greca{
+    width:99.7%;
+  }
+    
+  .info{
+    margin-left: 8%;
+    width: 100%;
+  }
+
+  .button1{
+    margin-left: 3%;
+  }
+
+  .button2{
+    margin-left: 1%;
+  }
+  .textInfo{
+    margin-left: 10%;
+  }
+  .imageGallery {
+    display: flex;
+    flex-wrap: wrap;
+  }
+      
+  .imageContainer {
+    width: calc(33.33%); /* Larghezza di 1/3 della larghezza del contenitore, meno lo spazio tra le immagini */
+  }
+      
+  .userImage {
+    width: 99%;
+    height: 99%;
+    cursor: pointer;
+    transition: filter 0.3s ease; /* Aggiungi una transizione per un effetto più fluido */
+}
+
+.userImage:hover {
+    filter: grayscale(40%); /* Applica un filtro di colore per rendere l'immagine leggermente grigia */
+}
+
+  .divNoPost {
+    width: 100%;
+    height: 100%;
+    margin-top: 10%;
+  }
+  .divImgNoPost {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: center; 
+  }
+  .divTextNoPost {
+    width: 100%;
+    height: 100%;
+    margin-top: 2%;
+    text-align: center;
+  }
+  
+  .circlePhoto {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    padding: 20px;
+    border: 5px solid white;
+  }
+  
+  .noPost {
+    color: white;
+    font-size: 35px;
+    margin-top: 20px; /* Aggiungi un margine sopra il testo (opzionale) */
+  }
+  
+      
+      
+      

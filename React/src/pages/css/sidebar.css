@@ -1,0 +1,63 @@
+
+.sidebar{
+  background-color: bg-dark; 
+  color: white;
+  height: 100vh;
+  transition: all 0.5s;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.top_section{
+  display: flex;
+  align-items:center;
+  margin-top: 20px;
+  margin-left: 12.3px;
+  margin-bottom: 30px;
+  height: 70px;
+}
+.link{
+  display: flex;
+  color: #fff;
+  padding: 10px 15px;
+  gap: 15px;
+  transition: all 0.5s;
+  vertical-align: sub;
+  text-decoration: none; 
+}
+
+.link:hover{
+  background-color: #595959;
+  border-radius: 10px;
+  transition: all 0.5s;
+}
+
+.icon, .link_text{
+  font-size: 18px;
+  vertical-align: sub;
+}
+
+.imageUser{
+  vertical-align: sub;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+}
+
+.icons{
+  vertical-align: sub;
+}
+
+.searched{
+  padding: 10px;
+  list-style: none;
+  color: white;
+  margin-bottom: 5px;
+}
+
+.searched:hover{
+  background-color: #595959;
+  border-radius: 10px;
+  transition: all 0.5s;
+}

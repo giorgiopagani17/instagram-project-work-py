@@ -1,0 +1,19 @@
+  .postGallery {
+    display: flex;
+    flex-wrap: wrap;
+  }
+      
+  .postContainer {
+    width: 33%; 
+  }
+      
+  .postImage {
+    width: 99%;
+    height: 99%;
+    cursor: pointer;
+    transition: filter 0.3s ease; /* Aggiungi una transizione per un effetto più fluido */
+}
+
+.postImage:hover {
+    filter: grayscale(40%); /* Applica un filtro di colore per rendere l'immagine leggermente grigia */
+}
