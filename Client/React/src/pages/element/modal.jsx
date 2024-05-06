@@ -59,7 +59,6 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                console.log(data)
                 // Impostiamo follow direttamente al valore restituito dal backend
                 setDescriptionNew(data[0].descrizione);
                 setBiografia(data[0].descrizione);
@@ -114,7 +113,6 @@ const ModalComponent = ({ number, image, ableToDelete, ...props }) => {
                     });
                     // Assuming commenti is your state variable to store comments
                     setCommenti(response.data);
-                    console.log(response.data);
                 } catch (error) {
                     console.error('Error fetching comments:', error);
                 }

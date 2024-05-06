@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 
 function ListModal(props) {
     const { number, id, id_post } = props;
-    console.log(number)
     const [searchQuery, setSearchQuery] = useState('');
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();

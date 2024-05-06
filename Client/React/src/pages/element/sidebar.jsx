@@ -58,7 +58,6 @@ const Sidebar = () => {
     const handleSearchChange = async (e) => {
         const query = e.target.value;
         setSearchQuery(query);
-        console.log(query);
 
         try {
             const data = await fetchUsers(query);
@@ -73,7 +72,6 @@ const Sidebar = () => {
     const handleSearchAll = async () => {
         const query = "";
         setSearchQuery(query);
-        console.log(query);
 
         try {
             const data = await fetchUsers(query); // Utilizza la funzione fetchUsers per recuperare gli utenti
