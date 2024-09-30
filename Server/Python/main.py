@@ -36,7 +36,7 @@ host = "localhost"
 username = "root"
 password = "root"
 db = "instagram"
-port = 3306
+port = 8889
 
 def create_db_connection():
     connection = None
